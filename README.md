@@ -38,7 +38,7 @@ ai-hedge-fund/
 
 1. 克隆仓库：
 ```bash
-git clone https://github.com/yourusername/ai-hedge-fund.git
+git clone https://github.com/li367/ai-hedge-fund.git
 cd ai-hedge-fund
 ```
 
@@ -73,6 +73,11 @@ poetry run python src/backtester.py
 - LLM API密钥(OpenAI, Anthropic等)
 - 交易参数(风险级别, 最大仓位等)
 - 模型参数
+
+## 详细文档
+
+- [系统架构文档](docs/architecture.md)
+- [快速入门指南](docs/quick-start.md)
 
 ## 贡献指南
 
