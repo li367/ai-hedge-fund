@@ -11,7 +11,7 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/yourusername/ai-hedge-fund.git
+   git clone https://github.com/li367/ai-hedge-fund.git
    cd ai-hedge-fund
    ```
 
