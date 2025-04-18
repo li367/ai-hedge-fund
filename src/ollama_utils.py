@@ -9,7 +9,7 @@ import sys
 
 from colorama import Fore, Style, init
 
-from utils.ollama import (delete_model, download_model,
+from src.utils.ollama import (delete_model, download_model,
                           get_locally_available_models, is_ollama_installed,
                           is_ollama_server_running, start_ollama_server)
 

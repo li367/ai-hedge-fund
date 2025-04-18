@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 from langchain_core.messages import HumanMessage
 
-from graph.state import AgentState, show_agent_reasoning
-from tools.api import get_prices, prices_to_df
-from utils.progress import progress
+from src.graph.state import AgentState, show_agent_reasoning
+from src.tools.api import get_prices, prices_to_df
+from src.utils.progress import progress
+from src.utils.llm import call_llm
 
 
 ##### Technical Analyst #####
@@ -505,3 +506,7 @@ def calculate_hurst_exponent(price_series: pd.Series, max_lag: int = 20) -> floa
     except (ValueError, RuntimeWarning):
         # Return 0.5 (random walk) if calculation fails
         return 0.5
+
+
+# 为了与测试兼容，添加别名
+technicals_agent = technical_analyst_agent

@@ -10,18 +10,18 @@ from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, StateGraph
 
-from agents.portfolio_manager import portfolio_management_agent
-from agents.risk_manager import risk_management_agent
-from graph.state import AgentState
-from llm.models import (LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider,
+from src.agents.portfolio_manager import portfolio_management_agent
+from src.agents.risk_manager import risk_management_agent
+from src.graph.state import AgentState
+from src.llm.models import (LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider,
                         get_model_info)
-from utils.analysts import ANALYST_ORDER, get_analyst_nodes
-from utils.display import print_trading_output
-from utils.i18n import _, get_current_language, set_language, load_all_languages
-from utils.logger import get_logger
-from utils.ollama import ensure_ollama_and_model
-from utils.progress import progress
-from utils.visualize import save_graph_as_png
+from src.utils.analysts import ANALYST_ORDER, get_analyst_nodes
+from src.utils.display import print_trading_output
+from src.utils.i18n import _, get_current_language, set_language, load_all_languages
+from src.utils.logger import get_logger
+from src.utils.ollama import ensure_ollama_and_model
+from src.utils.progress import progress
+from src.utils.visualize import save_graph_as_png
 
 # 获取日志记录器
 logger = get_logger("main")
@@ -414,8 +414,8 @@ if __name__ == "__main__":
         )
         print_trading_output(result)
     else:  # backtest 模式
-        # 导入回测相关模块
-        from backtester import Backtester
+        # 导入backtester以避免影响初始启动时间
+        from src.backtester import Backtester
         
         # 创建回测实例
         backtester = Backtester(

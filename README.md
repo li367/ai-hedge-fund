@@ -1,31 +1,115 @@
 # AI 对冲基金
 
-这是一个 AI 驱动的对冲基金的概念验证。该项目的目标是探索使用 AI 进行交易决策。本项目**仅供教育**目的，不适用于实际交易或投资。
+AI 驱动的股票交易和回测系统。利用多个 AI 分析师生成交易信号，并通过投资组合管理进行执行。
 
-该系统由多个协同工作的智能体组成：
+## 特点
 
-1. 本杰明·格雷厄姆智能体 - 价值投资之父，只购买具有安全边际的隐藏宝石
-2. 比尔·阿克曼智能体 - 激进投资者，采取大胆立场并推动变革
-3. 凯茜·伍德智能体 - 成长型投资女王，相信创新和颠覆的力量
-4. 查理·芒格智能体 - 沃伦·巴菲特的合伙人，只以合理价格购买优质企业
-5. 迈克尔·伯里智能体 - 《大空头》中的逆势者，寻找深度价值
-6. 彼得·林奇智能体 - 务实投资者，在日常企业中寻找"十倍股"
-7. 菲利普·费舍尔智能体 - 细致的成长型投资者，使用深度"小道消息"研究
-8. 斯坦利·德鲁肯米勒智能体 - 宏观传奇人物，寻找具有增长潜力的不对称机会
-9. 沃伦·巴菲特智能体 - 奥马哈的先知，以合理价格寻找优质公司
-10. 估值智能体 - 计算股票内在价值并生成交易信号
-11. 情绪智能体 - 分析市场情绪并生成交易信号
-12. 基本面智能体 - 分析基本面数据并生成交易信号
-13. 技术面智能体 - 分析技术指标并生成交易信号
-14. 风险管理器 - 计算风险指标并设置仓位限制
-15. 投资组合管理器 - 做出最终交易决策并生成订单
-    
-<img width="1042" alt="Screenshot 2025-03-22 at 6 19 07 PM" src="https://github.com/user-attachments/assets/cbae3dcf-b571-490d-b0ad-3f0f035ac0d4" />
+- 自动股票交易和回测
+- 多个 AI 分析师生成交易信号
+- 风险管理
+- 投资组合优化
+- 支持中英文界面
 
+## 快速开始
 
-**注意**：系统模拟交易决策，不进行实际交易。
+1. 安装依赖
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/virattt?style=social)](https://twitter.com/virattt)
+```bash
+pip install -r requirements.txt
+```
+
+2. 运行主程序
+
+```bash
+python src/main.py
+```
+
+## 开发
+
+### 运行测试
+
+项目包含单元测试以确保代码质量。
+
+```bash
+# 运行所有测试
+python -m unittest discover tests
+
+# 运行特定测试
+python -m unittest tests.test_logger
+```
+
+#### 常见测试问题及解决方案
+
+1. **文件锁定错误**：在 Windows 上运行测试时可能会遇到文件锁定问题，这通常是由于日志文件尚未关闭。解决方法：
+   ```python
+   # 在 tearDown 方法中添加
+   import logging
+   logging.shutdown()  # 关闭所有日志处理器
+   ```
+
+2. **导入错误**：如果遇到 `ModuleNotFoundError` 错误，可能是由于相对导入路径问题。解决方法：
+   - 使用 `fix_imports.py` 脚本修复导入路径
+   - 手动将导入路径从 `from xxx import yyy` 修改为 `from src.xxx import yyy`
+
+3. **编码问题**：处理中文日志时可能遇到编码问题。解决方法：
+   ```python
+   # 读取文件时指定 UTF-8 编码
+   with open(filename, 'r', encoding='utf-8') as f:
+       content = f.read()
+   ```
+
+### 修复导入问题
+
+项目提供了自动修复导入路径的工具脚本。当遇到 `ModuleNotFoundError` 错误时，可以尝试运行：
+
+```bash
+python fix_imports.py
+```
+
+该脚本会自动扫描 `src` 目录下的所有 `.py` 文件，并将所有相对导入（如 `from utils.xxx`）修改为绝对导入（如 `from src.utils.xxx`）。
+
+### 模块结构
+
+项目遵循以下模块导入规范：
+
+- 在 `src` 目录外的文件（如测试）应使用绝对导入：`from src.xxx import yyy`
+- 在 `src` 目录内的文件可以使用相对导入：`from .xxx import yyy` 或绝对导入
+
+## 项目结构
+
+```
+ai-hedge-fund/
+├── src/                # 主代码目录
+│   ├── agents/         # AI 分析师代理
+│   │   ├── risk_manager.py  # 风险管理代理
+│   │   ├── portfolio_manager.py  # 投资组合管理代理
+│   │   ├── warren_buffett.py  # 沃伦·巴菲特风格代理
+│   │   ├── technicals.py  # 技术分析代理
+│   │   └── ...        # 更多分析师代理
+│   ├── data/           # 数据处理模块
+│   ├── graph/          # 代理工作流图
+│   │   ├── state.py    # 状态管理
+│   │   └── workflow.py # 工作流定义
+│   ├── llm/            # 语言模型接口
+│   ├── tools/          # API 和工具
+│   ├── utils/          # 实用工具
+│   │   ├── logger.py   # 日志模块
+│   │   └── ...        # 其他工具
+│   ├── main.py         # 主程序
+│   └── backtester.py   # 回测系统
+├── tests/              # 测试代码
+│   ├── test_logger.py  # 日志模块测试
+│   ├── test_agents.py  # 代理模块测试
+│   └── ...            # 其他测试
+├── locales/            # 国际化文件
+├── logs/               # 日志目录
+├── fix_imports.py      # 导入路径修复工具
+└── README.md           # 项目说明文档
+```
+
+## 开源协议
+
+MIT
 
 ## 免责声明
 
@@ -157,12 +241,17 @@ ai-hedge-fund/
 │   │   ├── valuation.py          # Valuation analysis agent
 │   │   ├── ...                   # Other agents
 │   │   ├── warren_buffett.py     # Warren Buffett agent
+│   │   ├── ...                   # Additional agents
+│   │   └── ...                   # ...
 │   ├── tools/                    # Agent tools
 │   │   ├── api.py                # API tools
+│   │   └── ...                   # Additional tools
 │   ├── backtester.py             # Backtesting tools
 │   ├── main.py # Main entry point
 ├── pyproject.toml
-├── ...
+├── tests/                      # Test code
+├── locales/                    # Internationalization files
+└── logs/                       # Log directory
 ```
 
 ## Contributing

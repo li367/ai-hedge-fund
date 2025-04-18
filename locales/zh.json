@@ -89,5 +89,84 @@
   "analyst.technical_analyst": "技术分析师",
   "analyst.fundamentals_analyst": "基本面分析师",
   "analyst.sentiment_analyst": "情绪分析师",
-  "analyst.valuation_analyst": "估值分析师"
+  "analyst.valuation_analyst": "估值分析师",
+  "appDescription": "一个由人工智能驱动的自主股票交易对冲基金",
+  "cli": {
+    "help": {
+      "title": "欢迎使用AI对冲基金！使用以下命令与系统交互：",
+      "trade": "启动交易系统",
+      "backtest": "运行回测模式",
+      "setMode": "设置模式（交易或回测）",
+      "setTickers": "设置要分析的股票代码",
+      "setInterval": "设置数据间隔（1d, 1h等）",
+      "setBudget": "设置初始资金",
+      "setStartDate": "设置回测开始日期",
+      "setEndDate": "设置回测结束日期",
+      "run": "运行系统",
+      "viewPortfolio": "查看当前投资组合",
+      "viewHistory": "查看交易历史",
+      "help": "显示此帮助信息",
+      "exit": "退出程序"
+    },
+    "messages": {
+      "startingSystem": "正在启动AI对冲基金系统...",
+      "enterCommand": "请输入命令："
+    }
+  },
+  "display": {
+    "portfolio": {
+      "title": "当前投资组合",
+      "portfolioValue": "投资组合价值",
+      "cashValue": "现金价值",
+      "totalReturn": "总回报率",
+      "holdings": "当前持仓"
+    },
+    "trades": {
+      "title": "交易历史",
+      "date": "日期",
+      "symbol": "股票代码",
+      "action": "操作",
+      "quantity": "数量",
+      "price": "价格",
+      "value": "价值"
+    },
+    "backtest": {
+      "title": "回测结果",
+      "summary": "摘要",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "initialCapital": "初始资金",
+      "finalValue": "最终价值",
+      "totalReturn": "总回报",
+      "annualizedReturn": "年化回报",
+      "sharpeRatio": "夏普比率",
+      "maxDrawdown": "最大回撤",
+      "winRate": "胜率",
+      "dailyReturns": "每日回报",
+      "compareBenchmark": "与基准对比",
+      "analysisCompleted": "分析完成",
+      "runningBacktest": "正在运行回测...",
+      "backtestCompleted": "回测完成",
+      "savingResults": "正在保存结果...",
+      "resultsSavedTo": "结果已保存至"
+    }
+  },
+  "analysts": {
+    "technical": "技术分析师",
+    "warren_buffett": "沃伦·巴菲特",
+    "benjamin_graham": "本杰明·格雷厄姆",
+    "peter_lynch": "彼得·林奇",
+    "ray_dalio": "雷·达里奥",
+    "james_simons": "詹姆斯·西蒙斯",
+    "cathie_wood": "凯西·伍德",
+    "risk_management": "风险管理",
+    "portfolio_management": "投资组合管理"
+  },
+  "errors": {
+    "dataNotAvailable": "数据不可用",
+    "invalidTickers": "无效的股票代码",
+    "invalidDateRange": "无效的日期范围",
+    "insufficientFunds": "资金不足",
+    "systemError": "系统错误"
+  }
 } 

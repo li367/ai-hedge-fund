@@ -10,15 +10,15 @@ from colorama import Fore, Style, init
 from dateutil.relativedelta import relativedelta
 from typing_extensions import Callable
 
-from llm.models import (LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider,
+from src.llm.models import (LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider,
                         get_model_info)
 # 去除直接导入，避免循环导入问题
 # from main import run_hedge_fund
-from tools.api import (get_company_news, get_financial_metrics,
+from src.tools.api import (get_company_news, get_financial_metrics,
                        get_insider_trades, get_price_data, get_prices)
-from utils.analysts import ANALYST_ORDER
-from utils.display import format_backtest_row, print_backtest_results
-from utils.ollama import ensure_ollama_and_model
+from src.utils.analysts import ANALYST_ORDER
+from src.utils.display import format_backtest_row, print_backtest_results
+from src.utils.ollama import ensure_ollama_and_model
 
 init(autoreset=True)
 

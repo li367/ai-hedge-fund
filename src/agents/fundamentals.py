@@ -2,9 +2,9 @@ import json
 
 from langchain_core.messages import HumanMessage
 
-from graph.state import AgentState, show_agent_reasoning
-from tools.api import get_financial_metrics
-from utils.progress import progress
+from src.graph.state import AgentState, show_agent_reasoning
+from src.tools.api import get_financial_metrics
+from src.utils.progress import progress
 
 
 ##### Fundamental Agent #####
