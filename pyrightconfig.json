@@ -1,0 +1,10 @@
+{
+  "include": ["src"],
+  "extraPaths": [".", "src"],
+  "reportMissingImports": "warning",
+  "pythonVersion": "3.10",
+  "typeCheckingMode": "basic",
+  "venvPath": ".",
+  "useLibraryCodeForTypes": true,
+  "ignore": ["**/__pycache__", "**/node_modules"]
+} 
