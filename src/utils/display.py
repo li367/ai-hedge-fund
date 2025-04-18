@@ -1,8 +1,10 @@
+import json
+import os
+
 from colorama import Fore, Style
 from tabulate import tabulate
+
 from .analysts import ANALYST_ORDER
-import os
-import json
 
 
 def sort_agent_signals(signals):

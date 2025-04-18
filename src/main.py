@@ -1,24 +1,29 @@
+import argparse
+import json
 import sys
+from datetime import datetime
 
+import questionary
+from colorama import Fore, Style, init
+from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, StateGraph
-from colorama import Fore, Style, init
-import questionary
+
 from agents.portfolio_manager import portfolio_management_agent
 from agents.risk_manager import risk_management_agent
 from graph.state import AgentState
-from utils.display import print_trading_output
+from llm.models import (LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider,
+                        get_model_info)
 from utils.analysts import ANALYST_ORDER, get_analyst_nodes
-from utils.progress import progress
-from llm.models import LLM_ORDER, OLLAMA_LLM_ORDER, get_model_info, ModelProvider
+from utils.display import print_trading_output
+from utils.logger import get_logger
 from utils.ollama import ensure_ollama_and_model
-
-import argparse
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from utils.progress import progress
 from utils.visualize import save_graph_as_png
-import json
+
+# 获取日志记录器
+logger = get_logger("main")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -31,13 +36,13 @@ def parse_hedge_fund_response(response):
     try:
         return json.loads(response)
     except json.JSONDecodeError as e:
-        print(f"JSON decoding error: {e}\nResponse: {repr(response)}")
+        logger.error(f"JSON decoding error: {e}\nResponse: {repr(response)}")
         return None
     except TypeError as e:
-        print(f"Invalid response type (expected string, got {type(response).__name__}): {e}")
+        logger.error(f"Invalid response type (expected string, got {type(response).__name__}): {e}")
         return None
     except Exception as e:
-        print(f"Unexpected error while parsing response: {e}\nResponse: {repr(response)}")
+        logger.error(f"Unexpected error while parsing response: {e}\nResponse: {repr(response)}")
         return None
 
 
@@ -185,18 +190,18 @@ if __name__ == "__main__":
     ).ask()
 
     if not choices:
-        print("\n\nInterrupt received. Exiting...")
+        logger.info("Interrupt received. Exiting...")
         sys.exit(0)
     else:
         selected_analysts = choices
-        print(f"\nSelected analysts: {', '.join(Fore.GREEN + choice.title().replace('_', ' ') + Style.RESET_ALL for choice in choices)}\n")
+        logger.info(f"Selected analysts: {', '.join(Fore.GREEN + choice.title().replace('_', ' ') + Style.RESET_ALL for choice in choices)}")
 
     # Select LLM model based on whether Ollama is being used
     model_choice = None
     model_provider = None
     
     if args.ollama:
-        print(f"{Fore.CYAN}Using Ollama for local LLM inference.{Style.RESET_ALL}")
+        logger.info("Using Ollama for local LLM inference.")
         
         # Select from Ollama-specific models
         model_choice = questionary.select(
@@ -211,16 +216,16 @@ if __name__ == "__main__":
         ).ask()
         
         if not model_choice:
-            print("\n\nInterrupt received. Exiting...")
+            logger.info("\n\nInterrupt received. Exiting...")
             sys.exit(0)
         
         # Ensure Ollama is installed, running, and the model is available
         if not ensure_ollama_and_model(model_choice):
-            print(f"{Fore.RED}Cannot proceed without Ollama and the selected model.{Style.RESET_ALL}")
+            logger.error(f"{Fore.RED}Cannot proceed without Ollama and the selected model.{Style.RESET_ALL}")
             sys.exit(1)
         
         model_provider = ModelProvider.OLLAMA.value
-        print(f"\nSelected {Fore.CYAN}Ollama{Style.RESET_ALL} model: {Fore.GREEN + Style.BRIGHT}{model_choice}{Style.RESET_ALL}\n")
+        logger.info(f"\nSelected {Fore.CYAN}Ollama{Style.RESET_ALL} model: {Fore.GREEN + Style.BRIGHT}{model_choice}{Style.RESET_ALL}")
     else:
         # Use the standard cloud-based LLM selection
         model_choice = questionary.select(
@@ -235,17 +240,17 @@ if __name__ == "__main__":
         ).ask()
 
         if not model_choice:
-            print("\n\nInterrupt received. Exiting...")
+            logger.info("\n\nInterrupt received. Exiting...")
             sys.exit(0)
         else:
             # Get model info using the helper function
             model_info = get_model_info(model_choice)
             if model_info:
                 model_provider = model_info.provider.value
-                print(f"\nSelected {Fore.CYAN}{model_provider}{Style.RESET_ALL} model: {Fore.GREEN + Style.BRIGHT}{model_choice}{Style.RESET_ALL}\n")
+                logger.info(f"\nSelected {Fore.CYAN}{model_provider}{Style.RESET_ALL} model: {Fore.GREEN + Style.BRIGHT}{model_choice}{Style.RESET_ALL}")
             else:
                 model_provider = "Unknown"
-                print(f"\nSelected model: {Fore.GREEN + Style.BRIGHT}{model_choice}{Style.RESET_ALL}\n")
+                logger.info(f"\nSelected model: {Fore.GREEN + Style.BRIGHT}{model_choice}{Style.RESET_ALL}")
 
     # Create the workflow with selected analysts
     workflow = create_workflow(selected_analysts)

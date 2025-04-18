@@ -6,15 +6,12 @@ This script allows you to delete and re-download Ollama models.
 
 import argparse
 import sys
-from utils.ollama import (
-    is_ollama_installed,
-    is_ollama_server_running,
-    get_locally_available_models,
-    start_ollama_server,
-    download_model,
-    delete_model
-)
+
 from colorama import Fore, Style, init
+
+from utils.ollama import (delete_model, download_model,
+                          get_locally_available_models, is_ollama_installed,
+                          is_ollama_server_running, start_ollama_server)
 
 # Initialize colorama
 init(autoreset=True)

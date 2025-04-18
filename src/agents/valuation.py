@@ -6,17 +6,15 @@ Implements four complementary valuation methodologies and aggregates them with
 configurable weights. 
 """
 
-from statistics import median
 import json
+from statistics import median
+
 from langchain_core.messages import HumanMessage
+
 from graph.state import AgentState, show_agent_reasoning
+from tools.api import get_financial_metrics, get_market_cap, search_line_items
 from utils.progress import progress
 
-from tools.api import (
-    get_financial_metrics,
-    get_market_cap,
-    search_line_items,
-)
 
 def valuation_agent(state: AgentState):
     """Run valuation across tickers and write signals back to `state`."""

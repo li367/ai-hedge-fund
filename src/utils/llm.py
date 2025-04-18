@@ -1,8 +1,10 @@
 """Helper functions for LLM"""
 
 import json
-from typing import TypeVar, Type, Optional, Any
+from typing import Any, Optional, Type, TypeVar
+
 from pydantic import BaseModel
+
 from utils.progress import progress
 
 T = TypeVar('T', bound=BaseModel)

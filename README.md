@@ -1,55 +1,55 @@
-# AI Hedge Fund
+# AI 对冲基金
 
-This is a proof of concept for an AI-powered hedge fund.  The goal of this project is to explore the use of AI to make trading decisions.  This project is for **educational** purposes only and is not intended for real trading or investment.
+这是一个 AI 驱动的对冲基金的概念验证。该项目的目标是探索使用 AI 进行交易决策。本项目**仅供教育**目的，不适用于实际交易或投资。
 
-This system employs several agents working together:
+该系统由多个协同工作的智能体组成：
 
-1. Ben Graham Agent - The godfather of value investing, only buys hidden gems with a margin of safety
-2. Bill Ackman Agent - An activist investors, takes bold positions and pushes for change
-3. Cathie Wood Agent - The queen of growth investing, believes in the power of innovation and disruption
-4. Charlie Munger Agent - Warren Buffett's partner, only buys wonderful businesses at fair prices
-5. Michael Burry Agent - The Big Short contrarian who hunts for deep value
-6. Peter Lynch Agent - Practical investor who seeks "ten-baggers" in everyday businesses
-7. Phil Fisher Agent - Meticulous growth investor who uses deep "scuttlebutt" research 
-8. Stanley Druckenmiller Agent - Macro legend who hunts for asymmetric opportunities with growth potential
-9. Warren Buffett Agent - The oracle of Omaha, seeks wonderful companies at a fair price
-10. Valuation Agent - Calculates the intrinsic value of a stock and generates trading signals
-11. Sentiment Agent - Analyzes market sentiment and generates trading signals
-12. Fundamentals Agent - Analyzes fundamental data and generates trading signals
-13. Technicals Agent - Analyzes technical indicators and generates trading signals
-14. Risk Manager - Calculates risk metrics and sets position limits
-15. Portfolio Manager - Makes final trading decisions and generates orders
+1. 本杰明·格雷厄姆智能体 - 价值投资之父，只购买具有安全边际的隐藏宝石
+2. 比尔·阿克曼智能体 - 激进投资者，采取大胆立场并推动变革
+3. 凯茜·伍德智能体 - 成长型投资女王，相信创新和颠覆的力量
+4. 查理·芒格智能体 - 沃伦·巴菲特的合伙人，只以合理价格购买优质企业
+5. 迈克尔·伯里智能体 - 《大空头》中的逆势者，寻找深度价值
+6. 彼得·林奇智能体 - 务实投资者，在日常企业中寻找"十倍股"
+7. 菲利普·费舍尔智能体 - 细致的成长型投资者，使用深度"小道消息"研究
+8. 斯坦利·德鲁肯米勒智能体 - 宏观传奇人物，寻找具有增长潜力的不对称机会
+9. 沃伦·巴菲特智能体 - 奥马哈的先知，以合理价格寻找优质公司
+10. 估值智能体 - 计算股票内在价值并生成交易信号
+11. 情绪智能体 - 分析市场情绪并生成交易信号
+12. 基本面智能体 - 分析基本面数据并生成交易信号
+13. 技术面智能体 - 分析技术指标并生成交易信号
+14. 风险管理器 - 计算风险指标并设置仓位限制
+15. 投资组合管理器 - 做出最终交易决策并生成订单
     
-<img width="1042" alt="Screenshot 2025-03-22 at 6 19 07 PM" src="https://github.com/user-attachments/assets/cbae3dcf-b571-490d-b0ad-3f0f035ac0d4" />
+<img width="1042" alt="Screenshot 2025-03-22 at 6 19 07 PM" src="https://github.com/user-attachments/assets/cbae3dcf-b571-490d-b0ad-3f0f035ac0d4" />
 
 
-**Note**: the system simulates trading decisions, it does not actually trade.
+**注意**：系统模拟交易决策，不进行实际交易。
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/virattt?style=social)](https://twitter.com/virattt)
 
-## Disclaimer
+## 免责声明
 
-This project is for **educational and research purposes only**.
+本项目**仅供教育和研究目的**。
 
-- Not intended for real trading or investment
-- No warranties or guarantees provided
-- Past performance does not indicate future results
-- Creator assumes no liability for financial losses
-- Consult a financial advisor for investment decisions
+- 不适用于实际交易或投资
+- 不提供任何保证或担保
+- 过去的表现不代表未来的结果
+- 创建者不对财务损失承担任何责任
+- 投资决策请咨询财务顾问
 
-By using this software, you agree to use it solely for learning purposes.
+使用本软件即表示您同意仅将其用于学习目的。
 
-## Table of Contents
-- [Setup](#setup)
-- [Usage](#usage)
-  - [Running the Hedge Fund](#running-the-hedge-fund)
-  - [Running the Backtester](#running-the-backtester)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [Feature Requests](#feature-requests)
-- [License](#license)
+## 目录
+- [设置](#setup)
+- [使用方法](#usage)
+  - [运行对冲基金](#running-the-hedge-fund)
+  - [运行回测器](#running-the-backtester)
+- [项目结构](#project-structure)
+- [贡献](#contributing)
+- [功能请求](#feature-requests)
+- [许可证](#license)
 
-## Setup
+## 设置
 
 Clone the repository:
 ```bash

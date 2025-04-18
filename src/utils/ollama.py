@@ -2,10 +2,11 @@
 
 import platform
 import subprocess
-import requests
 import time
 from typing import List
+
 import questionary
+import requests
 from colorama import Fore, Style
 
 # Constants
