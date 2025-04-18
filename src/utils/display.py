@@ -5,46 +5,121 @@ from colorama import Fore, Style
 from tabulate import tabulate
 
 from .analysts import ANALYST_ORDER
+from .i18n import _
 
 
 def sort_agent_signals(signals):
-    """Sort agent signals in a consistent order."""
-    # Create order mapping from ANALYST_ORDER
+    """对代理信号进行一致的排序。"""
+    # 从ANALYST_ORDER创建排序映射
     analyst_order = {display: idx for idx, (display, _) in enumerate(ANALYST_ORDER)}
-    analyst_order["Risk Management"] = len(ANALYST_ORDER)  # Add Risk Management at the end
+    analyst_order["Risk Management"] = len(ANALYST_ORDER)  # 将风险管理添加到末尾
 
     return sorted(signals, key=lambda x: analyst_order.get(x[0], 999))
 
 
+def format_backtest_row(
+    date: str,
+    ticker: str,
+    action: str,
+    quantity: int,
+    price: float,
+    shares_owned: int,
+    position_value: float,
+    bullish_count: int = 0,
+    bearish_count: int = 0,
+    neutral_count: int = 0,
+    is_summary: bool = False,
+    total_value: float = None,
+    return_pct: float = None,
+    cash_balance: float = None,
+    total_position_value: float = None,
+    sharpe_ratio: float = None,
+    sortino_ratio: float = None,
+    max_drawdown: float = None,
+):
+    """
+    格式化回测表格行
+    
+    Args:
+        date: 日期
+        ticker: 股票代码
+        action: 执行的操作(BUY/SELL/HOLD等)
+        quantity: 交易数量
+        price: 价格
+        shares_owned: 拥有的股票数量
+        position_value: 仓位价值
+        bullish_count: 看涨信号数量
+        bearish_count: 看跌信号数量
+        neutral_count: 中性信号数量
+        is_summary: 是否为摘要行
+        total_value: 总价值(仅摘要行)
+        return_pct: 回报率(仅摘要行)
+        cash_balance: 现金余额(仅摘要行)
+        total_position_value: 总仓位价值(仅摘要行)
+        sharpe_ratio: 夏普比率(仅摘要行)
+        sortino_ratio: 索提诺比率(仅摘要行)
+        max_drawdown: 最大回撤(仅摘要行)
+        
+    Returns:
+        list: 格式化的行数据
+    """
+    if is_summary:
+        # 摘要行
+        return [
+            date,
+            "PORTFOLIO SUMMARY",
+            f"${total_value:,.2f}",
+            f"${cash_balance:,.2f}",
+            f"${total_position_value:,.2f}",
+            f"{return_pct:.2f}%",
+            f"{sharpe_ratio:.3f}" if sharpe_ratio else "N/A",
+            f"{sortino_ratio:.3f}" if sortino_ratio else "N/A",
+            f"{max_drawdown:.2f}%" if max_drawdown else "N/A",
+        ]
+    
+    # 股票数据行
+    return [
+        ticker,
+        str(shares_owned),
+        f"${price:.2f}",
+        f"${position_value:.2f}",
+        f"${position_value - (price * shares_owned):.2f}",
+        f"{(position_value / (price * shares_owned) - 1) * 100:.2f}%" if shares_owned != 0 else "0.00%",
+        action.upper(),
+        str(quantity),
+        f"({bullish_count}|{neutral_count}|{bearish_count})",
+    ]
+
+
 def print_trading_output(result: dict) -> None:
     """
-    Print formatted trading results with colored tables for multiple tickers.
+    为多个股票打印格式化的交易结果，带有彩色表格。
 
     Args:
-        result (dict): Dictionary containing decisions and analyst signals for multiple tickers
+        result (dict): 包含多个股票的决策和分析师信号的字典
     """
     decisions = result.get("decisions")
     if not decisions:
-        print(f"{Fore.RED}No trading decisions available{Style.RESET_ALL}")
+        print(f"{Fore.RED}{_('display.no_decisions')}{Style.RESET_ALL}")
         return
 
-    # Print decisions for each ticker
+    # 为每个股票打印决策
     for ticker, decision in decisions.items():
-        print(f"\n{Fore.WHITE}{Style.BRIGHT}Analysis for {Fore.CYAN}{ticker}{Style.RESET_ALL}")
+        print(f"\n{Fore.WHITE}{Style.BRIGHT}{_('display.analysis_for', ticker=Fore.CYAN + ticker + Style.RESET_ALL)}")
         print(f"{Fore.WHITE}{Style.BRIGHT}{'=' * 50}{Style.RESET_ALL}")
 
-        # Prepare analyst signals table for this ticker
+        # 为此股票准备分析师信号表
         table_data = []
         for agent, signals in result.get("analyst_signals", {}).items():
             if ticker not in signals:
                 continue
                 
-            # Skip Risk Management agent in the signals section
+            # 在信号部分跳过风险管理代理
             if agent == "risk_management_agent":
                 continue
 
             signal = signals[ticker]
-            agent_name = agent.replace("_agent", "").replace("_", " ").title()
+            agent_name = _(f"analyst.{agent.replace('_agent', '')}")
             signal_type = signal.get("signal", "").upper()
             confidence = signal.get("confidence", 0)
 
@@ -54,25 +129,25 @@ def print_trading_output(result: dict) -> None:
                 "NEUTRAL": Fore.YELLOW,
             }.get(signal_type, Fore.WHITE)
             
-            # Get reasoning if available
+            # 获取推理（如果可用）
             reasoning_str = ""
             if "reasoning" in signal and signal["reasoning"]:
                 reasoning = signal["reasoning"]
                 
-                # Handle different types of reasoning (string, dict, etc.)
+                # 处理不同类型的推理（字符串、字典等）
                 if isinstance(reasoning, str):
                     reasoning_str = reasoning
                 elif isinstance(reasoning, dict):
-                    # Convert dict to string representation
+                    # 将字典转换为字符串表示
                     reasoning_str = json.dumps(reasoning, indent=2)
                 else:
-                    # Convert any other type to string
+                    # 将任何其他类型转换为字符串
                     reasoning_str = str(reasoning)
                 
-                # Wrap long reasoning text to make it more readable
+                # 包装长推理文本，使其更具可读性
                 wrapped_reasoning = ""
                 current_line = ""
-                # Use a fixed width of 60 characters to match the table column width
+                # 使用60个字符的固定宽度以匹配表格列宽
                 max_line_length = 60
                 for word in reasoning_str.split():
                     if len(current_line) + len(word) + 1 > max_line_length:
@@ -97,20 +172,25 @@ def print_trading_output(result: dict) -> None:
                 ]
             )
 
-        # Sort the signals according to the predefined order
+        # 根据预定义的顺序对信号进行排序
         table_data = sort_agent_signals(table_data)
 
-        print(f"\n{Fore.WHITE}{Style.BRIGHT}AGENT ANALYSIS:{Style.RESET_ALL} [{Fore.CYAN}{ticker}{Style.RESET_ALL}]")
+        print(f"\n{Fore.WHITE}{Style.BRIGHT}{_('display.agent_analysis', ticker=Fore.CYAN + ticker + Style.RESET_ALL)}")
         print(
             tabulate(
                 table_data,
-                headers=[f"{Fore.WHITE}Agent", "Signal", "Confidence", "Reasoning"],
+                headers=[
+                    f"{Fore.WHITE}{_('display.header.agent')}", 
+                    _('display.header.signal'), 
+                    _('display.header.confidence'), 
+                    _('display.header.reasoning')
+                ],
                 tablefmt="grid",
                 colalign=("left", "center", "right", "left"),
             )
         )
 
-        # Print Trading Decision Table
+        # 打印交易决策表
         action = decision.get("action", "").upper()
         action_color = {
             "BUY": Fore.GREEN,
@@ -120,13 +200,13 @@ def print_trading_output(result: dict) -> None:
             "SHORT": Fore.RED,
         }.get(action, Fore.WHITE)
 
-        # Get reasoning and format it
+        # 获取并格式化推理
         reasoning = decision.get("reasoning", "")
-        # Wrap long reasoning text to make it more readable
+        # 包装长推理文本，使其更具可读性
         wrapped_reasoning = ""
         if reasoning:
             current_line = ""
-            # Use a fixed width of 60 characters to match the table column width
+            # 使用60个字符的固定宽度以匹配表格列宽
             max_line_length = 60
             for word in reasoning.split():
                 if len(current_line) + len(word) + 1 > max_line_length:
@@ -141,23 +221,23 @@ def print_trading_output(result: dict) -> None:
                 wrapped_reasoning += current_line
 
         decision_data = [
-            ["Action", f"{action_color}{action}{Style.RESET_ALL}"],
-            ["Quantity", f"{action_color}{decision.get('quantity')}{Style.RESET_ALL}"],
+            [_('display.header.action'), f"{action_color}{action}{Style.RESET_ALL}"],
+            [_('display.header.quantity'), f"{action_color}{decision.get('quantity')}{Style.RESET_ALL}"],
             [
-                "Confidence",
+                _('display.header.confidence'),
                 f"{Fore.WHITE}{decision.get('confidence'):.1f}%{Style.RESET_ALL}",
             ],
-            ["Reasoning", f"{Fore.WHITE}{wrapped_reasoning}{Style.RESET_ALL}"],
+            [_('display.header.reasoning'), f"{Fore.WHITE}{wrapped_reasoning}{Style.RESET_ALL}"],
         ]
         
-        print(f"\n{Fore.WHITE}{Style.BRIGHT}TRADING DECISION:{Style.RESET_ALL} [{Fore.CYAN}{ticker}{Style.RESET_ALL}]")
+        print(f"\n{Fore.WHITE}{Style.BRIGHT}{_('display.trading_decision', ticker=Fore.CYAN + ticker + Style.RESET_ALL)}")
         print(tabulate(decision_data, tablefmt="grid", colalign=("left", "left")))
 
-    # Print Portfolio Summary
-    print(f"\n{Fore.WHITE}{Style.BRIGHT}PORTFOLIO SUMMARY:{Style.RESET_ALL}")
+    # 打印投资组合摘要
+    print(f"\n{Fore.WHITE}{Style.BRIGHT}{_('display.portfolio_summary')}{Style.RESET_ALL}")
     portfolio_data = []
     
-    # Extract portfolio manager reasoning (common for all tickers)
+    # 提取投资组合管理者的推理（所有股票通用）
     portfolio_manager_reasoning = None
     for ticker, decision in decisions.items():
         if decision.get("reasoning"):
@@ -182,9 +262,14 @@ def print_trading_output(result: dict) -> None:
             ]
         )
 
-    headers = [f"{Fore.WHITE}Ticker", "Action", "Quantity", "Confidence"]
+    headers = [
+        f"{Fore.WHITE}{_('display.header.ticker')}", 
+        _('display.header.action'), 
+        _('display.header.quantity'), 
+        _('display.header.confidence')
+    ]
     
-    # Print the portfolio summary table
+    # 打印投资组合摘要表
     print(
         tabulate(
             portfolio_data,
@@ -194,23 +279,23 @@ def print_trading_output(result: dict) -> None:
         )
     )
     
-    # Print Portfolio Manager's reasoning if available
+    # 如果可用，打印投资组合管理者的推理
     if portfolio_manager_reasoning:
-        # Handle different types of reasoning (string, dict, etc.)
+        # 处理不同类型的推理（字符串、字典等）
         reasoning_str = ""
         if isinstance(portfolio_manager_reasoning, str):
             reasoning_str = portfolio_manager_reasoning
         elif isinstance(portfolio_manager_reasoning, dict):
-            # Convert dict to string representation
+            # 将字典转换为字符串表示
             reasoning_str = json.dumps(portfolio_manager_reasoning, indent=2)
         else:
-            # Convert any other type to string
+            # 将任何其他类型转换为字符串
             reasoning_str = str(portfolio_manager_reasoning)
             
-        # Wrap long reasoning text to make it more readable
+        # 包装长推理文本，使其更具可读性
         wrapped_reasoning = ""
         current_line = ""
-        # Use a fixed width of 60 characters to match the table column width
+        # 使用60个字符的固定宽度以匹配表格列宽
         max_line_length = 60
         for word in reasoning_str.split():
             if len(current_line) + len(word) + 1 > max_line_length:
@@ -224,16 +309,16 @@ def print_trading_output(result: dict) -> None:
         if current_line:
             wrapped_reasoning += current_line
             
-        print(f"\n{Fore.WHITE}{Style.BRIGHT}Portfolio Strategy:{Style.RESET_ALL}")
+        print(f"\n{Fore.WHITE}{Style.BRIGHT}{_('display.portfolio_strategy')}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}{wrapped_reasoning}{Style.RESET_ALL}")
 
 
 def print_backtest_results(table_rows: list) -> None:
-    """Print the backtest results in a nicely formatted table"""
-    # Clear the screen
+    """以格式良好的表格打印回测结果"""
+    # 清屏
     os.system("cls" if os.name == "nt" else "clear")
 
-    # Split rows into ticker rows and summary rows
+    # 将行分为股票行和摘要行
     ticker_rows = []
     summary_rows = []
 
@@ -244,125 +329,68 @@ def print_backtest_results(table_rows: list) -> None:
             ticker_rows.append(row)
 
     
-    # Display latest portfolio summary
+    # 显示最新的投资组合摘要
     if summary_rows:
         latest_summary = summary_rows[-1]
-        print(f"\n{Fore.WHITE}{Style.BRIGHT}PORTFOLIO SUMMARY:{Style.RESET_ALL}")
-
-        # Extract values and remove commas before converting to float
-        cash_str = latest_summary[7].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
-        position_str = latest_summary[6].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
-        total_str = latest_summary[8].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
-
-        print(f"Cash Balance: {Fore.CYAN}${float(cash_str):,.2f}{Style.RESET_ALL}")
-        print(f"Total Position Value: {Fore.YELLOW}${float(position_str):,.2f}{Style.RESET_ALL}")
-        print(f"Total Value: {Fore.WHITE}${float(total_str):,.2f}{Style.RESET_ALL}")
-        print(f"Return: {latest_summary[9]}")
+        print(f"\n{Fore.WHITE}{Style.BRIGHT}{_('display.portfolio_summary')}{Style.RESET_ALL}")
         
-        # Display performance metrics if available
-        if latest_summary[10]:  # Sharpe ratio
-            print(f"Sharpe Ratio: {latest_summary[10]}")
-        if latest_summary[11]:  # Sortino ratio
-            print(f"Sortino Ratio: {latest_summary[11]}")
-        if latest_summary[12]:  # Max drawdown
-            print(f"Max Drawdown: {latest_summary[12]}")
+        # 提取值并在转换为浮点数之前删除逗号
+        portfolio_value = float(latest_summary[2].replace("$", "").replace(",", ""))
+        cash_value = float(latest_summary[3].replace("$", "").replace(",", ""))
+        total_return = float(latest_summary[5].replace("%", ""))
+        
+        # 根据结果设置颜色
+        return_color = Fore.GREEN if total_return > 0 else Fore.RED
+        
+        # 创建表格数据
+        summary_data = [
+            [_('display.backtest.portfolio_value'), f"${portfolio_value:,.2f}"],
+            [_('display.backtest.cash_value'), f"${cash_value:,.2f}"],
+            [_('display.backtest.total_return'), f"{return_color}{total_return:.2f}%{Style.RESET_ALL}"],
+        ]
+        
+        # 打印表格
+        print(tabulate(summary_data, tablefmt="grid", colalign=("left", "right")))
 
-    # Add vertical spacing
-    print("\n" * 2)
-
-    # Print the table with just ticker rows
-    print(
-        tabulate(
-            ticker_rows,
+    # 显示最新的股票保持情况
+    print(f"\n{Fore.WHITE}{Style.BRIGHT}{_('display.backtest.holdings')}{Style.RESET_ALL}")
+    
+    # 如果有股票行，则打印它们
+    if ticker_rows:
+        holdings_data = []
+        for row in ticker_rows:
+            ticker = row[0]
+            shares = float(row[1])
+            cost_basis = float(row[2].replace("$", ""))
+            market_value = float(row[3].replace("$", ""))
+            profit_loss = float(row[4].replace("$", ""))
+            profit_loss_percent = float(row[5].replace("%", ""))
+            
+            # 确定颜色
+            pl_color = Fore.GREEN if profit_loss > 0 else Fore.RED
+            
+            holdings_data.append([
+                f"{Fore.CYAN}{ticker}{Style.RESET_ALL}",
+                f"{shares:.0f}",
+                f"${cost_basis:.2f}",
+                f"${market_value:.2f}",
+                f"{pl_color}${profit_loss:.2f}{Style.RESET_ALL}",
+                f"{pl_color}{profit_loss_percent:.2f}%{Style.RESET_ALL}",
+            ])
+            
+        # 打印表格
+        print(tabulate(
+            holdings_data,
             headers=[
-                "Date",
-                "Ticker",
-                "Action",
-                "Quantity",
-                "Price",
-                "Shares",
-                "Position Value",
-                "Bullish",
-                "Bearish",
-                "Neutral",
+                f"{Fore.WHITE}{_('display.backtest.ticker')}", 
+                _('display.backtest.shares'), 
+                _('display.backtest.cost_basis'), 
+                _('display.backtest.market_value'), 
+                _('display.backtest.profit_loss'), 
+                _('display.backtest.return')
             ],
             tablefmt="grid",
-            colalign=(
-                "left",  # Date
-                "left",  # Ticker
-                "center",  # Action
-                "right",  # Quantity
-                "right",  # Price
-                "right",  # Shares
-                "right",  # Position Value
-                "right",  # Bullish
-                "right",  # Bearish
-                "right",  # Neutral
-            ),
-        )
-    )
-
-    # Add vertical spacing
-    print("\n" * 4)
-
-
-def format_backtest_row(
-    date: str,
-    ticker: str,
-    action: str,
-    quantity: float,
-    price: float,
-    shares_owned: float,
-    position_value: float,
-    bullish_count: int,
-    bearish_count: int,
-    neutral_count: int,
-    is_summary: bool = False,
-    total_value: float = None,
-    return_pct: float = None,
-    cash_balance: float = None,
-    total_position_value: float = None,
-    sharpe_ratio: float = None,
-    sortino_ratio: float = None,
-    max_drawdown: float = None,
-) -> list[any]:
-    """Format a row for the backtest results table"""
-    # Color the action
-    action_color = {
-        "BUY": Fore.GREEN,
-        "COVER": Fore.GREEN,
-        "SELL": Fore.RED,
-        "SHORT": Fore.RED,
-        "HOLD": Fore.WHITE,
-    }.get(action.upper(), Fore.WHITE)
-
-    if is_summary:
-        return_color = Fore.GREEN if return_pct >= 0 else Fore.RED
-        return [
-            date,
-            f"{Fore.WHITE}{Style.BRIGHT}PORTFOLIO SUMMARY{Style.RESET_ALL}",
-            "",  # Action
-            "",  # Quantity
-            "",  # Price
-            "",  # Shares
-            f"{Fore.YELLOW}${total_position_value:,.2f}{Style.RESET_ALL}",  # Total Position Value
-            f"{Fore.CYAN}${cash_balance:,.2f}{Style.RESET_ALL}",  # Cash Balance
-            f"{Fore.WHITE}${total_value:,.2f}{Style.RESET_ALL}",  # Total Value
-            f"{return_color}{return_pct:+.2f}%{Style.RESET_ALL}",  # Return
-            f"{Fore.YELLOW}{sharpe_ratio:.2f}{Style.RESET_ALL}" if sharpe_ratio is not None else "",  # Sharpe Ratio
-            f"{Fore.YELLOW}{sortino_ratio:.2f}{Style.RESET_ALL}" if sortino_ratio is not None else "",  # Sortino Ratio
-            f"{Fore.RED}{abs(max_drawdown):.2f}%{Style.RESET_ALL}" if max_drawdown is not None else "",  # Max Drawdown
-        ]
+            colalign=("left", "right", "right", "right", "right", "right"),
+        ))
     else:
-        return [
-            date,
-            f"{Fore.CYAN}{ticker}{Style.RESET_ALL}",
-            f"{action_color}{action.upper()}{Style.RESET_ALL}",
-            f"{action_color}{quantity:,.0f}{Style.RESET_ALL}",
-            f"{Fore.WHITE}{price:,.2f}{Style.RESET_ALL}",
-            f"{Fore.WHITE}{shares_owned:,.0f}{Style.RESET_ALL}",
-            f"{Fore.YELLOW}{position_value:,.2f}{Style.RESET_ALL}",
-            f"{Fore.GREEN}{bullish_count}{Style.RESET_ALL}",
-            f"{Fore.RED}{bearish_count}{Style.RESET_ALL}",
-            f"{Fore.BLUE}{neutral_count}{Style.RESET_ALL}",
-        ]
+        print(f"{Fore.YELLOW}{_('display.backtest.no_holdings')}{Style.RESET_ALL}")

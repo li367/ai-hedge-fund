@@ -12,7 +12,8 @@ from typing_extensions import Callable
 
 from llm.models import (LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider,
                         get_model_info)
-from main import run_hedge_fund
+# 去除直接导入，避免循环导入问题
+# from main import run_hedge_fund
 from tools.api import (get_company_news, get_financial_metrics,
                        get_insider_trades, get_price_data, get_prices)
 from utils.analysts import ANALYST_ORDER
