@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-AI Hedge Fund - Main Package
+AI对冲基金项目源代码包初始化文件
 """ 

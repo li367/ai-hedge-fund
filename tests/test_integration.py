@@ -11,6 +11,9 @@ from src.graph.workflow import build_workflow
 from src.graph.state import AgentState
 from src.backtester import Backtester
 
+# 导入新的数据加载器
+from src.utils.data_loader import DataLoader, load_stock_data
+
 # 模拟data_loader模块
 sys.modules['src.utils.data_loader'] = MagicMock()
 sys.modules['src.utils.data_loader'].load_stock_data = MagicMock()
